@@ -1,0 +1,19 @@
+{
+  "name": "ebookfinder",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "amazon-product-api": "~0.4.3",
+    "axios": "~0.16.2",
+    "body-parser": "~1.17.1",
+    "co": "~4.6.0",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
+    "mongoose": "~4.10.0",
+    "morgan": "~1.8.1",
+    "nodemon": "~1.11.0"
+  }
+}
