@@ -24,7 +24,7 @@ router.get('/:_isbn', function(req, res, next) {
       }
       if (request_tasks.length === 0) {
         console.log('-------------find ebook')
-        return yield EBooks.find({ isbn: isbn }).exec();
+        return yield {ebooks: EBooks.find({ isbn: isbn }).exec()};
       }
     } else {
       request_tasks.push(KoboClient.retrieveKoboInfo(isbn))
@@ -51,7 +51,7 @@ router.get('/:_isbn', function(req, res, next) {
     let task_result = yield tasks;
     // TODO: upsertにする
     yield new Histories({isbn: isbn, hasKobo: hasKobo, hasKindle: hasKindle}).save();
-    return task_result;
+    return {ebooks: task_result};
   }).then((result) => {
     res.json(result);
   }).catch((ex) => {
