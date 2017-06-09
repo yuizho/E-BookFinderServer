@@ -6,7 +6,7 @@ const index = require('./routes/index');
 const ebooks = require('./routes/ebooks');
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://127.0.0.1/shelf');
+mongoose.connect(process.env.EBOOK_DATABASE);
 
 const app = express();
 
