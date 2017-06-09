@@ -29,9 +29,12 @@ const eBooksSchema = mongoose.Schema({
 	type: String,
 	required: true
   },
-  // TODO: これをつけるとSave()が失敗する
-//  _id: {type: mongoose.Schema.ObjectId, select: false},
-//  __v: {type: Number, select: false},
+});
+
+eBooksSchema.set('toJSON', {
+  virtuals: true,
+  versionKey:false,
+  transform: (doc, ret) => {delete ret._id}
 });
 
 const EBooks = module.exports = mongoose.model('ebooks', eBooksSchema);
