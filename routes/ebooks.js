@@ -5,11 +5,18 @@ const Histories = require('../models/histories');
 const KoboClient  = require('../lib/koboClient');
 const AmazonClient = require('../lib/amazonClient');
 const co = require('co');
+const ISBN = require('isbn').ISBN;
 
 router.get('/:_isbn', function(req, res, next) {
-  // TODO: validation check
+  const isbn = req.params._isbn
+  const parsedISBN = ISBN.parse(isbn)
+  // validation check
+  if (!parsedISBN || !parsedISBN.isIsbn13()) {
+    var err = new Error('Bad Request')
+    err.status = 400
+    return next(err)
+  }
   co(function*() {
-    const isbn = req.params._isbn;
     const history = yield Histories.find({ isbn: isbn }).exec();
     const request_tasks = []
     if (history && history.length > 0) {
@@ -56,8 +63,9 @@ router.get('/:_isbn', function(req, res, next) {
   }).then((result) => {
     res.json(result);
   }).catch((ex) => {
-    // TODO: error handling
     console.err(ex)
+    ex.message('Error')
+    next(ex)
   });
 });
 
