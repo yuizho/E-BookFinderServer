@@ -6,7 +6,8 @@ const index = require('./routes/index');
 const ebooks = require('./routes/ebooks');
 const mongoose = require('mongoose');
 
-mongoose.connect(process.env.EBOOK_DATABASE);
+mongoose.Promise = global.Promise
+mongoose.connect(process.env.EBOOK_DATABASE)
 
 const app = express();
 
