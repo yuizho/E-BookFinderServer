@@ -21,7 +21,6 @@ router.get('/:_isbn', function(req, res, next) {
     const request_tasks = []
     if (history && history.length > 0) {
       if (history[0].created.toDateString() !== new Date().toDateString()) {
-        console.log(history[0].hasKobo)
         if (!history[0].hasKobo) {
           request_tasks.push(KoboClient.retrieveKoboInfo(isbn))
         }
@@ -42,26 +41,28 @@ router.get('/:_isbn', function(req, res, next) {
     const req_result = yield request_tasks;
     console.log('save retrieved items------------');
     const tasks = [];
-    let hasKobo = false;
-    let hasKindle = false;
     for (const items of req_result) {
-      console.log(items);
       if (items && items.length) {
         for (const item of items) {
-          console.log(item);
-          if (item.type === 'kobo') { hasKobo = true }
-          if (item.type === 'kindle') { hasKindle = true }
-          // TODO: upsertにする
-          tasks.push(new EBooks(item).save());
+          tasks.push(EBooks.update({isbn: isbn, key: item.key}, item, {upsert: true}).exec())
         }
       }
     }
-    let task_result = yield tasks;
-    // TODO: upsertにする
-    yield new Histories({isbn: isbn, hasKobo: hasKobo, hasKindle: hasKindle}).save();
-    return {ebooks: task_result.filter(domainFilter)};
+    yield tasks
+    const ebooks = yield EBooks.find({ isbn: isbn }, {}).exec()
+    let hasKobo = false
+    let hasKindle = false
+    ebooks.map((e) => {
+      if (e.type === 'kobo') { hasKobo = true }
+      if (e.type === 'kindle') { hasKindle = true }
+    })
+    yield Histories.update(
+      {isbn: isbn},
+      {hasKobo: hasKobo, hasKindle: hasKindle, created: new Date()},
+      {upsert: true}).exec()
+    return {ebooks: ebooks.filter(domainFilter)}
   }).then((result) => {
-    res.json(result);
+    res.json(result)
   }).catch((ex) => {
     console.err(ex)
     ex.message('Error')
