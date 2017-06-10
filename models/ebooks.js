@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-const eBooksSchema = mongoose.Schema({
+const eBooksFields = {
   isbn:{
 	type: String,
 	required: true
@@ -11,7 +11,7 @@ const eBooksSchema = mongoose.Schema({
   },
   image:{
 	type: String,
-	required: false
+	required: true
   },
   price:{
 	type: String,
@@ -29,12 +29,20 @@ const eBooksSchema = mongoose.Schema({
 	type: String,
 	required: true
   },
-});
+}
+
+const eBooksSchema = mongoose.Schema(eBooksFields, {strict: true});
 
 eBooksSchema.set('toJSON', {
   virtuals: true,
   versionKey:false,
-  transform: (doc, ret) => {delete ret._id}
+  transform: (doc, ret) => {
+    for (let f of Object.keys(ret)) {
+      if (!eBooksFields.hasOwnProperty(f)) {
+        delete ret[f]
+      }
+    }
+  }
 });
 
 const EBooks = module.exports = mongoose.model('ebooks', eBooksSchema);

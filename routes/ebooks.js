@@ -24,7 +24,8 @@ router.get('/:_isbn', function(req, res, next) {
       }
       if (request_tasks.length === 0) {
         console.log('-------------find ebook')
-        return yield {ebooks: EBooks.find({ isbn: isbn }).exec()};
+        const ebooks = yield EBooks.find({ isbn: isbn }, {}).exec()
+        return {ebooks: ebooks.filter(domainFilter)};
       }
     } else {
       request_tasks.push(KoboClient.retrieveKoboInfo(isbn))
@@ -51,7 +52,7 @@ router.get('/:_isbn', function(req, res, next) {
     let task_result = yield tasks;
     // TODO: upsertにする
     yield new Histories({isbn: isbn, hasKobo: hasKobo, hasKindle: hasKindle}).save();
-    return {ebooks: task_result};
+    return {ebooks: task_result.filter(domainFilter)};
   }).then((result) => {
     res.json(result);
   }).catch((ex) => {
@@ -59,5 +60,17 @@ router.get('/:_isbn', function(req, res, next) {
     console.err(ex)
   });
 });
+
+function domainFilter(e) {
+  const domains = [
+    '^https?:\/\/books\\.rakuten\\.co\\.jp',
+    '^https?:\/\/www\\.amazon\\.co\\.jp',]
+  const imageDomains = [
+    '^https?:\/\/thumbnail\\.image\\.rakuten\\.co\\.jp',
+    '^https?:\/\/images-fe\\.ssl\-images\-amazon\\.com',]
+  const dr = new RegExp(domains.join('|'))
+  const ir = new RegExp(imageDomains.join('|'))
+  return (dr.test(e.url) && ir.test(e.image))
+}
 
 module.exports = router;
