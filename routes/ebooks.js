@@ -29,7 +29,6 @@ router.get('/:_isbn', function(req, res, next) {
         }
       }
       if (request_tasks.length === 0) {
-        console.log('-------------find ebook')
         const ebooks = yield EBooks.find({ isbn: isbn }, {}).exec()
         return {ebooks: ebooks.filter(domainFilter)}
       }
@@ -37,9 +36,7 @@ router.get('/:_isbn', function(req, res, next) {
       request_tasks.push(KoboClient.retrieveKoboInfo(isbn))
       request_tasks.push(AmazonClient.retrieveAmazonInfo(isbn))
     }
-    console.log('request to API------------');
     const req_result = yield request_tasks
-    console.log('save retrieved items------------');
     const tasks = []
     for (const items of req_result) {
       if (items && items.length) {
@@ -64,7 +61,6 @@ router.get('/:_isbn', function(req, res, next) {
   }).then((result) => {
     res.json(result)
   }).catch((ex) => {
-    console.err(ex)
     ex.message('Error')
     next(ex)
   })
