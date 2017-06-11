@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+var mongoose = require('mongoose')
 
 const historiesSchema = mongoose.Schema({
   isbn:{
@@ -15,6 +15,6 @@ const historiesSchema = mongoose.Schema({
     type: Date,
 	default: Date.now
   }
-});
+})
 
-const Histories = module.exports = mongoose.model('histories', historiesSchema);
+const Histories = module.exports = mongoose.model('histories', historiesSchema)

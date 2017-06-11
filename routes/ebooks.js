@@ -1,23 +1,23 @@
-const express = require('express');
-const router = express.Router();
-const EBooks = require('../models/ebooks');
-const Histories = require('../models/histories');
-const KoboClient  = require('../lib/koboClient');
-const AmazonClient = require('../lib/amazonClient');
-const co = require('co');
-const ISBN = require('isbn').ISBN;
+const express = require('express')
+const router = express.Router()
+const EBooks = require('../models/ebooks')
+const Histories = require('../models/histories')
+const KoboClient  = require('../lib/koboClient')
+const AmazonClient = require('../lib/amazonClient')
+const co = require('co')
+const ISBN = require('isbn').ISBN
 
 router.get('/:_isbn', function(req, res, next) {
   const isbn = req.params._isbn
   const parsedISBN = ISBN.parse(isbn)
   // validation check
   if (!parsedISBN || !parsedISBN.isIsbn13()) {
-    var err = new Error('Bad Request')
+    let err = new Error('Bad Request')
     err.status = 400
     return next(err)
   }
   co(function*() {
-    const history = yield Histories.find({ isbn: isbn }).exec();
+    const history = yield Histories.find({ isbn: isbn }).exec()
     const request_tasks = []
     if (history && history.length > 0) {
       if (history[0].created.toDateString() !== new Date().toDateString()) {
@@ -31,16 +31,16 @@ router.get('/:_isbn', function(req, res, next) {
       if (request_tasks.length === 0) {
         console.log('-------------find ebook')
         const ebooks = yield EBooks.find({ isbn: isbn }, {}).exec()
-        return {ebooks: ebooks.filter(domainFilter)};
+        return {ebooks: ebooks.filter(domainFilter)}
       }
     } else {
       request_tasks.push(KoboClient.retrieveKoboInfo(isbn))
       request_tasks.push(AmazonClient.retrieveAmazonInfo(isbn))
     }
     console.log('request to API------------');
-    const req_result = yield request_tasks;
+    const req_result = yield request_tasks
     console.log('save retrieved items------------');
-    const tasks = [];
+    const tasks = []
     for (const items of req_result) {
       if (items && items.length) {
         for (const item of items) {
@@ -67,8 +67,8 @@ router.get('/:_isbn', function(req, res, next) {
     console.err(ex)
     ex.message('Error')
     next(ex)
-  });
-});
+  })
+})
 
 function domainFilter(e) {
   const domains = [
@@ -82,4 +82,4 @@ function domainFilter(e) {
   return (dr.test(e.url) && ir.test(e.image))
 }
 
-module.exports = router;
+module.exports = router

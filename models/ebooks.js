@@ -1,4 +1,4 @@
-var mongoose = require('mongoose');
+var mongoose = require('mongoose')
 
 const eBooksFields = {
   isbn:{
@@ -43,6 +43,6 @@ eBooksSchema.set('toJSON', {
       }
     }
   }
-});
+})
 
-const EBooks = module.exports = mongoose.model('ebooks', eBooksSchema);
+const EBooks = module.exports = mongoose.model('ebooks', eBooksSchema)
