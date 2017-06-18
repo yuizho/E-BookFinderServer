@@ -60,9 +60,8 @@ router.get('/:_isbn', function(req, res, next) {
     return {ebooks: ebooks.filter(domainFilter)}
   }).then((result) => {
     res.json(result)
-  }).catch((ex) => {
-    ex.message('Error')
-    next(ex)
+  }, (err) => {
+    next(err)
   })
 })
 
