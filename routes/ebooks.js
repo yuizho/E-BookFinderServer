@@ -61,6 +61,7 @@ router.get('/:_isbn', function(req, res, next) {
   }).then((result) => {
     res.json(result)
   }, (err) => {
+    console.log(err)
     next(err)
   })
 })
